@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMitra Chat Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .phone-container {
+            width: 375px;
+            height: 667px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 32px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-bar {
+            height: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-container {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(102,126,234,0.4);
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(102,126,234,0.5);
+        }
+        
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        }
+        
+        .edu-logo {
+            width: 32px;
+            height: 32px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+            z-index: 2;
+        }
+        
+        .logo-text {
+            animation: logoFloat 2s ease-in-out infinite alternate;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes logoFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-1px); }
+        }
+        
+        .header-info {
+            flex: 1;
+        }
+        
+        .chat-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .chat-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(0,255,136,0.6);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .language-selector {
+            position: relative;
+        }
+        
+        .language-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .language-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+        
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 8px 0;
+            min-width: 140px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .language-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .language-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .language-option:hover {
+            background: #f8f9fa;
+        }
+        
+        .language-option.active {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .language-flag {
+            font-size: 16px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            background: linear-gradient(to bottom, #f8f9fd 0%, #ffffff 100%);
+            overflow-y: auto;
+            padding: 20px 16px;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 16px;
+            border: 1px solid #667eea30;
+        }
+        
+        .welcome-title {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-subtitle {
+            color: #8e9aaf;
+            font-size: 12px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+        
+        .message.bot .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e1e8ed;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 3px 12px rgba(102,126,234,0.1);
+            position: relative;
+        }
+        
+        .bot-badge {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #8e9aaf;
+            margin-top: 6px;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action-btn {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 1px solid #667eea30;
+            color: #667eea;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .message.user .message-time {
+            text-align: right;
+        }
+        
+        .emoji {
+            font-size: 16px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .checklist {
+            margin: 8px 0;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin: 4px 0;
+            font-size: 13px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 20px;
+            border-bottom-left-radius: 6px;
+            max-width: 75%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            30% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .input-area {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e1e8ed;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e1e8ed;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            background: #f8f9fa;
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .translation-indicator {
+            background: rgba(102,126,234,0.1);
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-top: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <div class="status-bar"></div>
+            
+            <div class="chat-header">
+                <div class="header-left">
+                    <div class="logo-container">
+                        <div class="edu-logo">
+                            <span class="logo-text">EM</span>
+                        </div>
+                    </div>
+                    <div class="header-info">
+                        <div class="chat-title" data-key="appName">EduMitra</div>
+                        <div class="chat-subtitle">
+                            <div class="online-indicator"></div>
+                            <span data-key="subtitle">Your Study Buddy • Always Here to Help</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="language-selector">
+                    <button class="language-btn" onclick="toggleLanguageDropdown()">
+                        <span class="language-flag">🌐</span>
+                        <span id="currentLang">EN</span>
+                        <span style="transform: rotate(90deg);">›</span>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="language-option active" onclick="changeLanguage('en')">
+                            <span class="language-flag">🇬🇧</span>
+                            <span>English</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('hi')">
+                            <span class="language-flag">🇮🇳</span>
+                            <span>हिंदी</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('mr')">
+                            <span class="language-flag">🇮🇳</span>
+                            <span>मराठी</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('raj')">
+                            <span class="language-flag">🇮🇳</span>
+                            <span>राजस्थानी</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('pa')">
+                            <span class="language-flag">🇮🇳</span>
+                            <span>ਪੰਜਾਬੀ</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('gu')">
+                            <span class="language-flag">🇮🇳</span>
+                            <span>ગુજરાતી</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome-message">
+                    <div class="welcome-title" data-key="welcomeTitle">I'm EduMitra</div>
+                    <div class="welcome-subtitle" data-key="welcomeSubtitle">Your buddy for smart guidance and quick help whenever you need!</div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-bubble" data-key="userMsg1">Hi EduMitra, what's the MCA fees structure?</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="message-bubble">
+                        <div class="bot-badge">EduMitra</div>
+                        <span data-key="botMsg1">Hello! Thank you for choosing EduMitra.<br><br>
+                        MCA Program Fee Structure:<br>
+                        <strong>Total Program Fees: <span class="highlight">₹1,02,392</span></strong><br><br>
+                            With scholarships, it can be much lower depending on your category.
+                            Want me to check which scholarship suits you?</span>
+
+                        <div class="quick-actions">
+                            <div class="quick-action-btn" data-key="btn1">Check Scholarship Eligibility</div>
+                            <div class="quick-action-btn" data-key="btn2">View Fee Breakdown</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-bubble" data-key="userMsg2">Yes, please check which scholarship I can get.</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="message-bubble">
+                        <div class="bot-badge">EduMitra</div>
+                        <span data-key="botMsg2">Excellent! I'll help you identify the most suitable scholarship opportunities.<br><br>
+                        To provide accurate scholarship recommendations, I need the following information:<br><br>
+                        <strong>1.</strong> Your category classification (OBC/SC/ST/EWS/General/etc.)<br>
+                        <strong>2.</strong> Your CET examination score<br><br>
+                        This information will help me match you with scholarships where you have confirmed eligibility.</span>
+                    </div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-bubble" data-key="userMsg3">I'm OBC and my CET score is 91.</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="message-bubble">
+                        <div class="bot-badge">EduMitra</div>
+                        <span data-key="botMsg3">Excellent profile for scholarship eligibility!<br><br>
+                        Based on your OBC category and CET score of 91, you qualify for:<br>
+                        <strong>OBC/EBC/SEBC Scholarship Program</strong><br><br>
+                        <strong>Fee Reduction:</strong> Your total fees will be reduced to <span class="highlight">₹59,568</span><br>
+                        <em>Total Savings: ₹42,824</em><br><br>
+                        Would you like detailed guidance on the application process?</span>
+                        <div class="quick-actions">
+                            <div class="quick-action-btn" data-key="btn3">Application Process</div>
+                            <div class="quick-action-btn" data-key="btn4">Required Documents</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-bubble" data-key="userMsg4">Yes, please guide me.</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="message-bubble">
+                        <div class="bot-badge">EduMitra</div>
+                        <span data-key="botMsg4">Here is your comprehensive application guide:<br><br>
+                        
+                        <strong>Application Process:</strong><br><br>
+                        
+                        <strong>Step 1: Portal Access</strong><br>
+                        Visit your state/central government scholarship portal<br><br>
+                        
+                        <strong>Step 2: Registration</strong><br>
+                        Create account with personal details, CET score, and category information<br><br>
+                        
+                        <strong>Step 3: Document Submission</strong><br>
+                        Upload required documents (see document list below)<br><br>
+                        
+                        <strong>Step 4: Application Submission</strong><br>
+                        Complete form validation and submit application<br><br>
+                        
+                        <strong>Step 5: Tracking</strong><br>
+                        Monitor application status through online portal<br><br>
+                        
+                        Upon approval, your fees will automatically be adjusted to ₹59,568.<br><br>
+                        
+                        Need the complete document checklist?</span>
+                    </div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-bubble" data-key="userMsg5">Yes.</div>
+                </div>
+                
+                <div class="message bot">
+                    <div class="message-bubble">
+                        <div class="bot-badge">EduMitra</div>
+                        <span data-key="botMsg5"><strong>Required Documents Checklist:</strong><br><br>
+                        
+                        <strong>Essential Documents:</strong><br>
+                        <div class="checklist">
+                            <div class="checklist-item">• CET score card (original and photocopy)</div>
+                            <div class="checklist-item">• Valid OBC caste certificate</div>
+                            <div class="checklist-item">• Current income certificate</div>
+                            <div class="checklist-item">• College admission confirmation letter</div>
+                            <div class="checklist-item">• Passport-size photographs (recent)</div>
+                            <div class="checklist-item">• Bank account details and passbook copy</div>
+                        </div>
+                        <br>
+                        <strong>Important:</strong> Ensure all documents are scanned in PDF format before starting the application process.<br><br>
+                        
+                        <strong>Final Result:</strong> Approved applications result in reduced fees of ₹59,568<br><br>
+                        
+                        Would you like additional guidance on common application pitfalls to avoid?</span>
+                        <div class="quick-actions">
+                            <div class="quick-action-btn" data-key="btn5">Application Tips</div>
+                            <div class="quick-action-btn" data-key="btn6">Processing Timeline</div>
+                            <div class="quick-action-btn" data-key="btn7">Contact Support</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="translation-indicator" id="translationIndicator" style="display: none;">
+                    <span data-key="translationNote">Content translated to your selected language</span>
+                </div>
+                
+                <div class="message bot">
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                        <span style="font-size: 12px; color: #8e9aaf;" data-key="typingMsg">EduMitra is preparing additional resources...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" class="input-field" data-placeholder="inputPlaceholder" placeholder="Ask about admissions, scholarships, or program details..." value="">
+                <button class="send-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="white"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                appName: "EduMitra",
+                subtitle: "Your Study Buddy • Always Here to Help",
+                welcomeTitle: "I'm EduMitra",
+                welcomeSubtitle: "Your buddy for smart guidance and quick help whenever you need!",
+                userMsg1: "Hi EduMitra, what's the MCA fees structure?",
+                botMsg1: "Hello! Thank you for choosing EduMitra.<br><br>MCA Program Fee Structure:<br><strong>Total Program Fees: <span class='highlight'>₹1,02,392</span></strong><br><br>With scholarships, it can be much lower depending on your category. Want me to check which scholarship suits you?",
+                userMsg2: "Yes, please check which scholarship I can get.",
+                botMsg2: "Excellent! I'll help you identify the most suitable scholarship opportunities.<br><br>To provide accurate scholarship recommendations, I need the following information:<br><br><strong>1.</strong> Your category classification (OBC/SC/ST/EWS/General/etc.)<br><strong>2.</strong> Your CET examination score<br><br>This information will help me match you with scholarships where you have confirmed eligibility.",
+                userMsg3: "I'm OBC and my CET score is 91.",
+                botMsg3: "Excellent profile for scholarship eligibility!<br><br>Based on your OBC category and CET score of 91, you qualify for:<br><strong>OBC/EBC/SEBC Scholarship Program</strong><br><br><strong>Fee Reduction:</strong> Your total fees will be reduced to <span class='highlight'>₹59,568</span><br><em>Total Savings: ₹42,824</em><br><br>Would you like detailed guidance on the application process?",
+                userMsg4: "Yes, please guide me.",
+                botMsg4: "Here is your comprehensive application guide:<br><br><strong>Application Process:</strong><br><br><strong>Step 1: Portal Access</strong><br>Visit your state/central government scholarship portal<br><br><strong>Step 2: Registration</strong><br>Create account with personal details, CET score, and category information<br><br><strong>Step 3: Document Submission</strong><br>Upload required documents (see document list below)<br><br><strong>Step 4: Application Submission</strong><br>Complete form validation and submit application<br><br><strong>Step 5: Tracking</strong><br>Monitor application status through online portal<br><br>Upon approval, your fees will automatically be adjusted to ₹59,568.<br><br>Need the complete document checklist?",
+                userMsg5: "Yes.",
+                botMsg5: "<strong>Required Documents Checklist:</strong><br><br><strong>Essential Documents:</strong><br><div class='checklist'><div class='checklist-item'>• CET score card (original and photocopy)</div><div class='checklist-item'>• Valid OBC caste certificate</div><div class='checklist-item'>• Current income certificate</div><div class='checklist-item'>• College admission confirmation letter</div><div class='checklist-item'>• Passport-size photographs (recent)</div><div class='checklist-item'>• Bank account details and passbook copy</div></div><br><strong>Important:</strong> Ensure all documents are scanned in PDF format before starting the application process.<br><br><strong>Final Result:</strong> Approved applications result in reduced fees of ₹59,568<br><br>Would you like additional guidance on common application pitfalls to avoid?",
+                btn1: "Check Scholarship Eligibility",
+                btn2: "View Fee Breakdown",
+                btn3: "Application Process",
+                btn4: "Required Documents",
+                btn5: "Application Tips",
+                btn6: "Processing Timeline",
+                btn7: "Contact Support",
+                inputPlaceholder: "Ask about admissions, scholarships, or program details...",
+                typingMsg: "EduMitra is preparing additional resources...",
+                translationNote: "Content translated to your selected language"
+            },
+            hi: {
+                appName: "एडुमित्रा",
+                subtitle: "आपका अध्ययन साथी • हमेशा मदद के लिए तैयार",
+                welcomeTitle: "मैं एडुमित्रा हूँ",
+                welcomeSubtitle: "स्मार्ट मार्गदर्शन और त्वरित सहायता के लिए आपका साथी!",
+                userMsg1: "हैलो एडुमित्रा, MCA की फीस संरचना क्या है?",
+                botMsg1: "नमस्ते! एडुमित्रा चुनने के लिए धन्यवाद।<br><br>MCA कार्यक्रम फीस संरचना:<br><strong>कुल कार्यक्रम फीस: <span class='highlight'>₹1,02,392</span></strong><br><br>छात्रवृत्ति के साथ, यह आपकी श्रेणी के आधार पर बहुत कम हो सकती है। क्या आप चाहते हैं कि मैं देखूं कि कौन सी छात्रवृत्ति आपके लिए उपयुक्त है?",
+                userMsg2: "हां, कृपया देखें कि मुझे कौन सी छात्रवृत्ति मिल सकती है।",
+                botMsg2: "उत्कृष्ट! मैं आपको सबसे उपयुक्त छात्रवृत्ति अवसरों की पहचान करने में मदद करूंगा।<br><br>सटीक छात्रवृत्ति सिफारिशें प्रदान करने के लिए, मुझे निम्नलिखित जानकारी चाहिए:<br><br><strong>1.</strong> आपका श्रेणी वर्गीकरण (OBC/SC/ST/EWS/General/आदि)<br><strong>2.</strong> आपका CET परीक्षा स्कोर<br><br>यह जानकारी मुझे उन छात्रवृत्तियों से मिलाने में मदद करेगी जहां आपकी पुष्ट पात्रता है।",
+                userMsg3: "मैं OBC हूं और मेरा CET स्कोर 91 है।",
+                botMsg3: "छात्रवृत्ति पात्रता के लिए उत्कृष्ट प्रोफ़ाइल!<br><br>आपकी OBC श्रेणी और 91 के CET स्कोर के आधार पर, आप इसके लिए योग्य हैं:<br><strong>OBC/EBC/SEBC छात्रवृत्ति कार्यक्रम</strong><br><br><strong>फीस कमी:</strong> आपकी कुल फीस घटकर <span class='highlight'>₹59,568</span> हो जाएगी<br><em>कुल बचत: ₹42,824</em><br><br>क्या आप आवेदन प्रक्रिया पर विस्तृत मार्गदर्शन चाहते हैं?",
+                userMsg4: "हां, कृपया मुझे गाइड करें।",
+                botMsg4: "यहां आपकी व्यापक आवेदन गाइड है:<br><br><strong>आवेदन प्रक्रिया:</strong><br><br><strong>चरण 1: पोर्टल एक्सेस</strong><br>अपने राज्य/केंद्र सरकार के छात्रवृत्ति पोर्टल पर जाएं<br><br><strong>चरण 2: पंजीकरण</strong><br>व्यक्तिगत विवरण, CET स्कोर और श्रेणी जानकारी के साथ खाता बनाएं<br><br><strong>चरण 3: दस्तावेज़ सबमिशन</strong><br>आवश्यक दस्तावेज़ अपलोड करें (नीचे दस्तावेज़ सूची देखें)<br><br><strong>चरण 4: आवेदन सबमिशन</strong><br>फॉर्म सत्यापन पूरा करें और आवेदन जमा करें<br><br><strong>चरण 5: ट्रैकिंग</strong><br>ऑनलाइन पोर्टल के माध्यम से आवेदन स्थिति की निगरानी करें<br><br>अनुमोदन पर, आपकी फीस स्वचालित रूप से ₹59,568 में समायोजित हो जाएगी।<br><br>पूरी दस्तावेज़ चेकलिस्ट चाहिए?",
+                userMsg5: "हां।",
+                botMsg5: "<strong>आवश्यक दस्तावेज़ चेकलिस्ट:</strong><br><br><strong>आवश्यक दस्तावेज़:</strong><br><div class='checklist'><div class='checklist-item'>• CET स्कोर कार्ड (मूल और फोटोकॉपी)</div><div class='checklist-item'>• वैध OBC जाति प्रमाण पत्र</div><div class='checklist-item'>• वर्तमान आय प्रमाण पत्र</div><div class='checklist-item'>• कॉलेज प्रवेश पुष्टि पत्र</div><div class='checklist-item'>• पासपोर्ट आकार की तस्वीरें (हाल की)</div><div class='checklist-item'>• बैंक खाता विवरण और पासबुक कॉपी</div></div><br><strong>महत्वपूर्ण:</strong> आवेदन प्रक्रिया शुरू करने से पहले सुनिश्चित करें कि सभी दस्तावेज़ PDF प्रारूप में स्कैन किए गए हैं।<br><br><strong>अंतिम परिणाम:</strong> स्वीकृत आवेदनों के परिणामस्वरूप ₹59,568 की कम फीस<br><br>क्या आप सामान्य आवेदन नुकसान से बचने के लिए अतिरिक्त मार्गदर्शन चाहते हैं?",
+                btn1: "छात्रवृत्ति पात्रता जांचें",
+                btn2: "फीस विवरण देखें",
+                btn3: "आवेदन प्रक्रिया",
+                btn4: "आवश्यक दस्तावेज़",
+                btn5: "आवेदन सुझाव",
+                btn6: "प्रसंस्करण समयरेखा",
+                btn7: "सहायता संपर्क",
+                inputPlaceholder: "प्रवेश, छात्रवृत्ति या कार्यक्रम विवरण के बारे में पूछें...",
+                typingMsg: "एडुमित्रा अतिरिक्त संसाधन तैयार कर रहा है...",
+                translationNote: "सामग्री आपकी चयनित भाषा में अनुवादित"
+            },
+            mr: {
+                appName: "एडुमित्रा",
+                subtitle: "तुमचा अभ्यास मित्र • नेहमी मदतीसाठी येथे",
+                welcomeTitle: "मी एडुमित्रा आहे",
+                welcomeSubtitle: "स्मार्ट मार्गदर्शन आणि त्वरित मदतीसाठी तुमचा मित्र!",
+                userMsg1: "हायी एडुमित्रा, MCA ची फी संरचना काय आहे?",
+                botMsg1: "नमस्कार! एडुमित्रा निवडल्याबद्दल धन्यवाद।<br><br>MCA कार्यक्रम फी संरचना:<br><strong>एकूण कार्यक्रम फी: <span class='highlight'>₹1,02,392</span></strong><br><br>शिष्यवृत्तीसह, तुमच्या श्रेणीच्या आधारावर ती खूप कमी होऊ शकते। तुमच्यासाठी कोणती शिष्यवृत्ती योग्य आहे ते मी तपासावे का?",
+                userMsg2: "होय, कृपया मला कोणती शिष्यवृत्ती मिळू शकते ते पहा।",
+                botMsg2: "उत्कृष्ट! मी तुम्हाला सर्वात योग्य शिष्यवृत्ती संधी ओळखण्यात मदत करेन।<br><br>अचूक शिष्यवृत्ती शिफारसी प्रदान करण्यासाठी, मला खालील माहिती हवी:<br><br><strong>1.</strong> तुमचे श्रेणी वर्गीकरण (OBC/SC/ST/EWS/General/इ.)<br><strong>2.</strong> तुमचा CET परीक्षा गुण<br><br>ही माहिती मला तुम्हाला त्या शिष्यवृत्त्यांशी जुळवण्यात मदत करेल जिथे तुमची पुष्ट पात्रता आहे।",
+                userMsg3: "मी OBC आहे आणि माझा CET गुण 91 आहे।",
+                botMsg3: "शिष्यवृत्ती पात्रतेसाठी उत्कृष्ट प्रोफाइल!<br><br>तुमच्या OBC श्रेणी आणि 91 च्या CET गुणांच्या आधारावर, तुम्ही यासाठी पात्र आहात:<br><strong>OBC/EBC/SEBC शिष्यवृत्ती कार्यक्रम</strong><br><br><strong>फी कपात:</strong> तुमची एकूण फी कमी होऊन <span class='highlight'>₹59,568</span> होईल<br><em>एकूण बचत: ₹42,824</em><br><br>तुम्हाला अर्जाच्या प्रक्रियेवर तपशीलवार मार्गदर्शन हवे का?",
+                userMsg4: "होय, कृपया मला मार्गदर्शन करा।",
+                botMsg4: "येथे तुमचे सर्वसमावेशक अर्ज मार्गदर्शन आहे:<br><br><strong>अर्ज प्रक्रिया:</strong><br><br><strong>पायरी 1: पोर्टल प्रवेश</strong><br>तुमच्या राज्य/केंद्र सरकारच्या शिष्यवृत्ती पोर्टलला भेट द्या<br><br><strong>पायरी 2: नोंदणी</strong><br>वैयक्तिक तपशील, CET गुण आणि श्रेणी माहितीसह खाते तयार करा<br><br><strong>पायरी 3: कागदपत्र सबमिशन</strong><br>आवश्यक कागदपत्रे अपलोड करा (खाली कागदपत्रांची यादी पहा)<br><br><strong>पायरी 4: अर्ज सबमिशन</strong><br>फॉर्म पडताळणी पूर्ण करा आणि अर्ज सबमिट करा<br><br><strong>पायरी 5: ट्रॅकिंग</strong><br>ऑनलाइन पोर्टलद्वारे अर्ज स्थितीचे निरीक्षण करा<br><br>मंजुरीवर, तुमची फी आपोआप ₹59,568 मध्ये समायोजित होईल।<br><br>संपूर्ण कागदपत्र चेकलिस्ट हवी का?",
+                userMsg5: "होय।",
+                botMsg5: "<strong>आवश्यक कागदपत्र चेकलिस्ट:</strong><br><br><strong>आवश्यक कागदपत्रे:</strong><br><div class='checklist'><div class='checklist-item'>• CET स्कोअर कार्ड (मूळ आणि फोटोकॉपी)</div><div class='checklist-item'>• वैध OBC जात प्रमाणपत्र</div><div class='checklist-item'>• वर्तमान उत्पन्न प्रमाणपत्र</div><div class='checklist-item'>• महाविद्यालय प्रवेश पुष्टी पत्र</div><div class='checklist-item'>• पासपोर्ट आकाराचे फोटो (अलीकडचे)</div><div class='checklist-item'>• बँक खाते तपशील आणि पासबुक प्रत</div></div><br><strong>महत्वाचे:</strong> अर्ज प्रक्रिया सुरू करण्यापूर्वी सर्व कागदपत्रे PDF स्वरूपात स्कॅन केली असल्याची खात्री करा।<br><br><strong>अंतिम परिणाम:</strong> मंजूर अर्जांचा परिणाम ₹59,568 कमी फी<br><br>तुम्हाला सामान्य अर्ज अडचणी टाळण्यासाठी अतिरिक्त मार्गदर्शन हवे का?",
+                btn1: "शिष्यवृत्ती पात्रता तपासा",
+                btn2: "फी तुटवडा पहा",
+                btn3: "अर्ज प्रक्रिया",
+                btn4: "आवश्यक कागदपत्रे",
+                btn5: "अर्ज टिप्स",
+                btn6: "प्रक्रिया वेळापत्रक",
+                btn7: "सहाय्य संपर्क",
+                inputPlaceholder: "प्रवेश, शिष्यवृत्ती किंवा कार्यक्रम तपशील विषयी विचारा...",
+                typingMsg: "एडुमित्रा अतिरिक्त संसाधने तयार करत आहे...",
+                translationNote: "सामग्री तुमच्या निवडलेल्या भाषेत अनुवादित"
+            },
+            raj: {
+                appName: "एडुमित्रा",
+                subtitle: "थारो पढ़ाई रो साथी • हमेशा मदद खातर हाजिर",
+                welcomeTitle: "म्हूं एडुमित्रा हूं",
+                welcomeSubtitle: "स्मार्ट मार्गदर्शन अर त्वरित मदद खातर थारो साथी!",
+                userMsg1: "हैलो एडुमित्रा, MCA री फीस संरचना के सी है?",
+                botMsg1: "नमस्कार! एडुमित्रा नै चुनण खातर धन्यवाद।<br><br>MCA कार्यक्रम फीस संरचना:<br><strong>कुल कार्यक्रम फीस: <span class='highlight'>₹1,02,392</span></strong><br><br>छात्रवृत्ति कै साथै, थारी श्रेणी कै आधार माथै वा बो कम हो सकै सै। के थे चाहो सो कि म्हूं देखूं कि कुण सी छात्रवृत्ति थारै खातर ठीक सै?",
+                userMsg2: "हां, कृप्पा करकै देखो कि मनै कुण सी छात्रवृत्ति मिल सकै सै।",
+                botMsg2: "बहुत बढ़िया! म्हूं थानै सबसूं उपयुक्त छात्रवृत्ति अवसरां री पहचान करण में मदद करूंगो।<br><br>सटीक छात्रवृत्ति सिफारिशां देण खातर, मनै निम्न माहिती चाहिए:<br><br><strong>1.</strong> थारो श्रेणी वर्गीकरण (OBC/SC/ST/EWS/General/आदि)<br><strong>2.</strong> थारो CET परीक्षा अंक<br><br>इ माहिती म्हानै उन छात्रवृत्तियां सूं मिलावण में मदद करैगी जठै थारी पुष्ट पात्रता सै।",
+                userMsg3: "म्हूं OBC हूं अर म्हारो CET अंक 91 सै।",
+                botMsg3: "छात्रवृत्ति पात्रता खातर शानदार प्रोफाइल!<br><br>थारी OBC श्रेणी अर 91 कै CET अंकां कै आधार माथै, थे इसकै खातर योग्य हो:<br><strong>OBC/EBC/SEBC छात्रवृत्ति कार्यक्रम</strong><br><br><strong>फीस कटौती:</strong> थारी कुल फीस घटकर <span class='highlight'>₹59,568</span> हो जावैगी<br><em>कुल बचत: ₹42,824</em><br><br>के थे आवेदन प्रक्रिया माथै विस्तृत मार्गदर्शन चाहो हो?",
+                userMsg4: "हां, कृप्पा करकै म्हानै गाइड करो।",
+                botMsg4: "याथै थारी व्यापक आवेदन गाइड सै:<br><br><strong>आवेदन प्रक्रिया:</strong><br><br><strong>चरण 1: पोर्टल एक्सेस</strong><br>अपणै राज्य/केंद्र सरकार कै छात्रवृत्ति पोर्टल माथै जाओ<br><br><strong>चरण 2: पंजीकरण</strong><br>व्यक्तिगत विवरण, CET अंक अर श्रेणी माहिती कै साथै खाता बणाओ<br><br><strong>चरण 3: दस्तावेज सबमिशन</strong><br>आवश्यक दस्तावेज अपलोड करो (नीचै दस्तावेज सूची देखो)<br><br><strong>चरण 4: आवेदन सबमिशन</strong><br>फॉर्म सत्यापन पूरो करो अर आवेदन जमा करो<br><br><strong>चरण 5: ट्रैकिंग</strong><br>ऑनलाइन पोर्टल कै माध्यम सूं आवेदन स्थिति री निगरानी करो<br><br>अनुमोदन माथै, थारी फीस स्वचालित रूप सूं ₹59,568 में समायोजित हो जावैगी।<br><br>पूरी दस्तावेज चेकलिस्ट चाहिए?",
+                userMsg5: "हां।",
+                botMsg5: "<strong>आवश्यक दस्तावेज चेकलिस्ट:</strong><br><br><strong>आवश्यक दस्तावेज:</strong><br><div class='checklist'><div class='checklist-item'>• CET स्कोर कार्ड (मूळ अर फोटोकॉपी)</div><div class='checklist-item'>• वैध OBC जाति प्रमाण पत्र</div><div class='checklist-item'>• वर्तमान आय प्रमाण पत्र</div><div class='checklist-item'>• कॉलेज प्रवेश पुष्टि पत्र</div><div class='checklist-item'>• पासपोर्ट साइज री तस्वीरां (हाली री)</div><div class='checklist-item'>• बैंक खाता विवरण अर पासबुक कॉपी</div></div><br><strong>जरूरी:</strong> आवेदन प्रक्रिया शुरू करण सूं पहलां यकीन बणाओ कि सगळा दस्तावेज PDF रूप में स्कॅन किया गया सै।<br><br><strong>अंतिम परिणाम:</strong> स्वीकृत आवेदनां कै परिणामस्वरूप ₹59,568 री कम फीस<br><br>के थानै सामान्य आवेदन नुकसान सूं बचण खातर अतिरिक्त मार्गदर्शन चाहिए?",
+                btn1: "छात्रवृत्ति पात्रता जांचो",
+                btn2: "फीस विवरण देखो",
+                btn3: "आवेदन प्रक्रिया",
+                btn4: "आवश्यक दस्तावेज",
+                btn5: "आवेदन सुझाव",
+                btn6: "प्रसंस्करण समयरेखा",
+                btn7: "सहायता संपर्क",
+                inputPlaceholder: "प्रवेश, छात्रवृत्ति या कार्यक्रम विवरण कै बारै में पूछो...",
+                typingMsg: "एडुमित्रा अतिरिक्त संसाधन तैयार कर रह्यो सै...",
+                translationNote: "सामग्री थारी चुनी भाषा में अनुवादित"
+            },
+            pa: {
+                appName: "ਐਡੁਮਿਤਰਾ",
+                subtitle: "ਤੁਹਾਡਾ ਅਧਿਐਨ ਮਿੱਤਰ • ਹਮੇਸ਼ਾ ਮਦਦ ਲਈ ਹਾਜ਼ਰ",
+                welcomeTitle: "ਮੈਂ ਐਡੁਮਿਤਰਾ ਹਾਂ",
+                welcomeSubtitle: "ਸਮਾਰਟ ਮਾਰਗਦਰਸ਼ਨ ਅਤੇ ਤੁਰੰਤ ਮਦਦ ਲਈ ਤੁਹਾਡਾ ਮਿੱਤਰ!",
+                userMsg1: "ਹੈਲੋ ਐਡੁਮਿਤਰਾ, MCA ਦੀ ਫੀਸ ਬਣਤਰ ਕੀ ਹੈ?",
+                botMsg1: "ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਐਡੁਮਿਤਰਾ ਚੁਣਨ ਲਈ ਧੰਨਵਾਦ।<br><br>MCA ਪ੍ਰੋਗਰਾਮ ਫੀਸ ਬਣਤਰ:<br><strong>ਕੁੱਲ ਪ੍ਰੋਗਰਾਮ ਫੀਸ: <span class='highlight'>₹1,02,392</span></strong><br><br>ਸਕਾਲਰਸ਼ਿਪਾਂ ਨਾਲ, ਇਹ ਤੁਹਾਡੀ ਸ਼ੈਣੀ ਦੇ ਆਧਾਰ 'ਤੇ ਬਹੁਤ ਘੱਟ ਹੋ ਸਕਦੀ ਹੈ। ਕੀ ਤੁਸੀਂ ਚਾਹੁੰਦੇ ਹੋ ਕਿ ਮੈਂ ਵੇਖਾਂ ਕਿ ਕਿਹੜੀ ਸਕਾਲਰਸ਼ਿਪ ਤੁਹਾਡੇ ਲਈ ਸਹੀ ਹੈ?",
+                userMsg2: "ਹਾਂ, ਕਿਰਪਾ ਕਰਕੇ ਵੇਖੋ ਕਿ ਮੈਨੂੰ ਕਿਹੜੀ ਸਕਾਲਰਸ਼ਿਪ ਮਿਲ ਸਕਦੀ ਹੈ।",
+                botMsg2: "ਸ਼ਾਨਦਾਰ! ਮੈਂ ਤੁਹਾਨੂੰ ਸਭ ਤੋਂ ਢੁਕਵੇਂ ਸਕਾਲਰਸ਼ਿਪ ਮੌਕਿਆਂ ਦੀ ਪਛਾਣ ਕਰਨ ਵਿੱਚ ਮਦਦ ਕਰਾਂਗਾ।<br><br>ਸਟੀਕ ਸਕਾਲਰਸ਼ਿਪ ਸਿਫ਼ਾਰਿਸ਼ਾਂ ਪ੍ਰਦਾਨ ਕਰਨ ਲਈ, ਮੈਨੂੰ ਹੇਠਲੀ ਜਾਣਕਾਰੀ ਚਾਹੀਦੀ ਹੈ:<br><br><strong>1.</strong> ਤੁਹਾਡਾ ਸ਼ੈਣੀ ਵਰਗੀਕਰਣ (OBC/SC/ST/EWS/General/ਆਦਿ)<br><strong>2.</strong> ਤੁਹਾਡਾ CET ਪਰੀਖਿਆ ਸਕੋਰ<br><br>ਇਹ ਜਾਣਕਾਰੀ ਮੈਨੂੰ ਤੁਹਾਨੂੰ ਉਨ੍ਹਾਂ ਸਕਾਲਰਸ਼ਿਪਾਂ ਨਾਲ ਮਿਲਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰੇਗੀ ਜਿੱਥੇ ਤੁਹਾਡੀ ਪੁਸ਼ਟ ਯੋਗਤਾ ਹੈ।",
+                userMsg3: "ਮੈਂ OBC ਹਾਂ ਅਤੇ ਮੇਰਾ CET ਸਕੋਰ 91 ਹੈ।",
+                botMsg3: "ਸਕਾਲਰਸ਼ਿਪ ਯੋਗਤਾ ਲਈ ਸ਼ਾਨਦਾਰ ਪ੍ਰੋਫਾਈਲ!<br><br>ਤੁਹਾਡੀ OBC ਸ਼ੈਣੀ ਅਤੇ 91 ਦੇ CET ਸਕੋਰ ਦੇ ਆਧਾਰ 'ਤੇ, ਤੁਸੀਂ ਇਸ ਲਈ ਯੋਗ ਹੋ:<br><strong>OBC/EBC/SEBC ਸਕਾਲਰਸ਼ਿਪ ਪ੍ਰੋਗਰਾਮ</strong><br><br><strong>ਫੀਸ ਕਟੌਤੀ:</strong> ਤੁਹਾਡੀ ਕੁੱਲ ਫੀਸ ਘਟ ਕੇ <span class='highlight'>₹59,568</span> ਹੋ ਜਾਵੇਗੀ<br><em>ਕੁੱਲ ਬਚਤ: ₹42,824</em><br><br>ਕੀ ਤੁਸੀਂ ਅਰਜ਼ੀ ਪ੍ਰਕਿਰਿਆ 'ਤੇ ਵਿਸਤ੍ਰਿਤ ਮਾਰਗਦਰਸ਼ਨ ਚਾਹੁੰਦੇ ਹੋ?",
+                userMsg4: "ਹਾਂ, ਕਿਰਪਾ ਕਰਕੇ ਮੈਨੂੰ ਗਾਈਡ ਕਰੋ।",
+                botMsg4: "ਇੱਥੇ ਤੁਹਾਡੀ ਵਿਆਪਕ ਅਰਜ਼ੀ ਗਾਈਡ ਹੈ:<br><br><strong>ਅਰਜ਼ੀ ਪ੍ਰਕਿਰਿਆ:</strong><br><br><strong>ਕਦਮ 1: ਪੋਰਟਲ ਪਹੁੰਚ</strong><br>ਆਪਣੇ ਰਾਜ/ਕੇਂਦਰ ਸਰਕਾਰ ਦੇ ਸਕਾਲਰਸ਼ਿਪ ਪੋਰਟਲ 'ਤੇ ਜਾਓ<br><br><strong>ਕਦਮ 2: ਰਜਿਸਟ੍ਰੇਸ਼ਨ</strong><br>ਵਿਅਕਤੀਗਤ ਵੇਰਵੇ, CET ਸਕੋਰ ਅਤੇ ਸ਼ੈਣੀ ਜਾਣਕਾਰੀ ਨਾਲ ਖਾਤਾ ਬਣਾਓ<br><br><strong>ਕਦਮ 3: ਦਸਤਾਵੇਜ਼ ਜਮਾਂ</strong><br>ਲੋੜੀਂਦੇ ਦਸਤਾਵੇਜ਼ ਅਪਲੋਡ ਕਰੋ (ਹੇਠਾਂ ਦਸਤਾਵੇਜ਼ ਸੂਚੀ ਦੇਖੋ)<br><br><strong>ਕਦਮ 4: ਅਰਜ਼ੀ ਜਮਾਂ</strong><br>ਫਾਰਮ ਤਸਦੀਕ ਪੂਰਾ ਕਰੋ ਅਤੇ ਅਰਜ਼ੀ ਜਮਾਂ ਕਰੋ<br><br><strong>ਕਦਮ 5: ਟਰੈਕਿੰਗ</strong><br>ਔਨਲਾਈਨ ਪੋਰਟਲ ਰਾਹੀਂ ਅਰਜ਼ੀ ਸਥਿਤੀ ਦੀ ਨਿਗਰਾਨੀ ਕਰੋ<br><br>ਮਨਜ਼ੂਰੀ 'ਤੇ, ਤੁਹਾਡੀ ਫੀਸ ਆਪਣੇ-ਆਪ ₹59,568 ਵਿੱਚ ਸਮਾਯੋਜਿਤ ਹੋ ਜਾਵੇਗੀ।<br><br>ਪੂਰੀ ਦਸਤਾਵੇਜ਼ ਚੈੱਕਲਿਸਟ ਚਾਹੀਦੀ ਹੈ?",
+                userMsg5: "ਹਾਂ।",
+                botMsg5: "<strong>ਲੋੜੀਂਦੇ ਦਸਤਾਵੇਜ਼ ਚੈੱਕਲਿਸਟ:</strong><br><br><strong>ਜ਼ਰੂਰੀ ਦਸਤਾਵੇਜ਼:</strong><br><div class='checklist'><div class='checklist-item'>• CET ਸਕੋਰ ਕਾਰਡ (ਮੂਲ ਅਤੇ ਫੋਟੋਕਾਪੀ)</div><div class='checklist-item'>• ਵੈਧ OBC ਜਾਤੀ ਪ੍ਰਮਾਣ ਪੱਤਰ</div><div class='checklist-item'>• ਮੌਜੂਦਾ ਆਮਦਨ ਪ੍ਰਮਾਣ ਪੱਤਰ</div><div class='checklist-item'>• ਕਾਲਜ ਦਾਖਲਾ ਪੁਸ਼ਟੀ ਪੱਤਰ</div><div class='checklist-item'>• ਪਾਸਪੋਰਟ ਸਾਈਜ਼ ਫੋਟੋ (ਤਾਜ਼ੇ)</div><div class='checklist-item'>• ਬੈਂਕ ਖਾਤਾ ਵੇਰਵੇ ਅਤੇ ਪਾਸਬੁੱਕ ਕਾਪੀ</div></div><br><strong>ਮਹੱਤਵਪੂਰਨ:</strong> ਅਰਜ਼ੀ ਪ੍ਰਕਿਰਿਆ ਸ਼ੁਰੂ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਯਕੀਨੀ ਬਣਾਓ ਕਿ ਸਾਰੇ ਦਸਤਾਵੇਜ਼ PDF ਫਾਰਮੈਟ ਵਿੱਚ ਸਕੈਨ ਕੀਤੇ ਗਏ ਹਨ।<br><br><strong>ਅੰਤਮ ਨਤੀਜਾ:</strong> ਮਨਜ਼ੂਰ ਅਰਜ਼ੀਆਂ ਦਾ ਨਤੀਜਾ ₹59,568 ਦੀ ਘੱਟ ਫੀਸ<br><br>ਕੀ ਤੁਸੀਂ ਆਮ ਅਰਜ਼ੀ ਨੁਕਸਾਨਾਂ ਤੋਂ ਬਚਣ ਲਈ ਵਾਧੂ ਮਾਰਗਦਰਸ਼ਨ ਚਾਹੁੰਦੇ ਹੋ?",
+                btn1: "ਸਕਾਲਰਸ਼ਿਪ ਯੋਗਤਾ ਜਾਂਚੋ",
+                btn2: "ਫੀਸ ਵਿਸਥਾਰ ਦੇਖੋ",
+                btn3: "ਅਰਜ਼ੀ ਪ੍ਰਕਿਰਿਆ",
+                btn4: "ਲੋੜੀਂਦੇ ਦਸਤਾਵੇਜ਼",
+                btn5: "ਅਰਜ਼ੀ ਟਿਪਸ",
+                btn6: "ਪ੍ਰਕਿਰਿਆ ਸਮਾਂਸੀਮਾ",
+                btn7: "ਮਦਦ ਸੰਪਰਕ",
+                inputPlaceholder: "ਦਾਖਲੇ, ਸਕਾਲਰਸ਼ਿਪ ਜਾਂ ਪ੍ਰੋਗਰਾਮ ਵੇਰਵਿਆਂ ਬਾਰੇ ਪੁੱਛੋ...",
+                typingMsg: "ਐਡੁਮਿਤਰਾ ਵਾਧੂ ਸਰੋਤ ਤਿਆਰ ਕਰ ਰਿਹਾ ਹੈ...",
+                translationNote: "ਸਮਗਰੀ ਤੁਹਾਡੀ ਚੁਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਅਨੁਵਾਦਿਤ"
+            },
+            gu: {
+                appName: "એડુમિત્રા",
+                subtitle: "તમારો અભ્યાસ મિત્ર • હમેશાં મદદ માટે હાજર",
+                welcomeTitle: "હું એડુમિત્રા છું",
+                welcomeSubtitle: "સ્માર્ટ માર્ગદર્શન અને ત્વરિત મદદ માટે તમારો મિત્ર!",
+                userMsg1: "હેલો એડુમિત્રા, MCA ની ફી સ્ટ્રક્ચર શું છે?",
+                botMsg1: "નમસ્તે! એડુમિત્રા પસંદ કરવા બદલ આભાર.<br><br>MCA કાર્યક્રમ ફી સ્ટ્રક્ચર:<br><strong>કુલ કાર્યક્રમ ફી: <span class='highlight'>₹1,02,392</span></strong><br><br>સ્કોલરશિપ સાથે, તે તમારી કેટેગરીના આધારે ઘણી ઓછી થઈ શકે છે. તમે ચાહો છો કે હું જોઉં કે કઈ સ્કોલરશિપ તમારા માટે યોગ્ય છે?",
+                userMsg2: "હા, કૃપા કરીને જુઓ કે મને કઈ સ્કોલરશિપ મળી શકે છે.",
+                botMsg2: "ઉત્કૃષ્ટ! હું તમને સૌથી યોગ્ય સ્કોલરશિપ તકોની ઓળખ કરવામાં મદદ કરીશ.<br><br>ચોક્કસ સ્કોલરશિપ ભલામણો પ્રદાન કરવા માટે, મને નીચેની માહિતી જોઈએ છે:<br><br><strong>1.</strong> તમારું કેટેગરી વર્ગીકરણ (OBC/SC/ST/EWS/General/વગેરે)<br><strong>2.</strong> તમારો CET પરીક્ષા સ્કોર<br><br>આ માહિતી મને તે સ્કોલરશિપ સાથે મેચ કરવામાં મદદ કરશે જ્યાં તમારી પુષ્ટ પાત્રતા છે.",
+                userMsg3: "હું OBC છું અને મારો CET સ્કોર 91 છે.",
+                botMsg3: "સ્કોલરશિપ પાત્રતા માટે ઉત્કૃષ્ટ પ્રોફાઇલ!<br><br>તમારી OBC કેટેગરી અને 91 ના CET સ્કોરના આધારે, તમે આ માટે યોગ્ય છો:<br><strong>OBC/EBC/SEBC સ્કોલરશિપ કાર્યક્રમ</strong><br><br><strong>ફી ઘટાડો:</strong> તમારી કુલ ફી ઘટીને <span class='highlight'>₹59,568</span> થઈ જશે<br><em>કુલ બચત: ₹42,824</em><br><br>શું તમે અરજી પ્રક્રિયા પર વિગતવાર માર્ગદર્શન ઇચ્છો છો?",
+                userMsg4: "હા, કૃપા કરીને મને ગાઇડ કરો.",
+                botMsg4: "અહીં તમારી વ્યાપક અરજી ગાઇડ છે:<br><br><strong>અરજી પ્રક્રિયા:</strong><br><br><strong>પગલું 1: પોર્ટલ એક્સેસ</strong><br>તમારા રાજ્ય/કેન્દ્ર સરકારના સ્કોલરશિપ પોર્ટલની મુલાકાત લો<br><br><strong>પગલું 2: નોંધણી</strong><br>વ્યક્તિગત વિગતો, CET સ્કોર અને કેટેગરી માહિતી સાથે એકાઉન્ટ બનાવો<br><br><strong>પગલું 3: દસ્તાવેજ સબમિશન</strong><br>જરૂરી દસ્તાવેજો અપલોડ કરો (નીચે દસ્તાવેજ યાદી જુઓ)<br><br><strong>પગલું 4: અરજી સબમિશન</strong><br>ફોર્મ વેલિડેશન પૂર્ણ કરો અને અરજી સબમિટ કરો<br><br><strong>પગલું 5: ટ્રેકિંગ</strong><br>ઓનલાઇન પોર્ટલ દ્વારા અરજી સ્થિતિની નિગરાની કરો<br><br>મંજૂરી પર, તમારી ફી આપમેળે ₹59,568 માં સમાયોજિત થઈ જશે.<br><br>સંપૂર્ણ દસ્તાવેજ ચેકલિસ્ટ જોઈએ છે?",
+                userMsg5: "હા.",
+                botMsg5: "<strong>જરૂરી દસ્તાવેજ ચેકલિસ્ટ:</strong><br><br><strong>આવશ્યક દસ્તાવેજો:</strong><br><div class='checklist'><div class='checklist-item'>• CET સ્કોર કાર્ડ (મૂળ અને ફોટોકોપી)</div><div class='checklist-item'>• માન્ય OBC જાતિ પ્રમાણપત્ર</div><div class='checklist-item'>• વર્તમાન આવક પ્રમાણપત્ર</div><div class='checklist-item'>• કોલેજ પ્રવેશ પુષ્ટિ પત્ર</div><div class='checklist-item'>• પાસપોર્ટ સાઇઝ ફોટા (તાજેતરના)</div><div class='checklist-item'>• બેંક એકાઉન્ટ વિગતો અને પાસબુક કોપી</div></div><br><strong>મહત્વપૂર્ણ:</strong> અરજી પ્રક્રિયા શરૂ કરતા પહેલા ખાતરી કરો કે બધા દસ્તાવેજો PDF ફોર્મેટમાં સ્કેન કરેલા છે.<br><br><strong>અંતિમ પરિણામ:</strong> મંજૂર અરજીઓનું પરિણામ ₹59,568 ની ઘટેલી ફી<br><br>શું તમે સામાન્ય અરજી નુકસાનથી બચવા માટે વધારાનું માર્ગદર્શન ઇચ્છો છો?",
+                btn1: "સ્કોલરશિપ પાત્રતા તપાસો",
+                btn2: "ફી વિગતો જુઓ",
+                btn3: "અરજી પ્રક્રિયા",
+                btn4: "જરૂરી દસ્તાવેજો",
+                btn5: "અરજી ટિપ્સ",
+                btn6: "પ્રક્રિયા સમયપટ્ટિ",
+                btn7: "સહાય સંપર્ક",
+                inputPlaceholder: "પ્રવેશ, સ્કોલરશિપ અથવા કાર્યક્રમ વિગતો વિશે પૂછો...",
+                typingMsg: "એડુમિત્રા વધારાના સંસાધનો તૈયાર કરી રહ્યું છે...",
+                translationNote: "સામગ્રી તમારી પસંદ કરેલી ભાષામાં અનુવાદિત"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.remove('active');
+            
+            // Update current language display
+            const langCodes = {
+                'en': 'EN',
+                'hi': 'हि',
+                'mr': 'मर',
+                'raj': 'रा',
+                'pa': 'ਪਾ',
+                'gu': 'ગુ'
+            };
+            
+            document.getElementById('currentLang').textContent = langCodes[lang];
+            
+            // Update active language option
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.closest('.language-option').classList.add('active');
+            
+            // Translate all content
+            translateContent(lang);
+            
+            // Show translation indicator
+            const indicator = document.getElementById('translationIndicator');
+            if (lang !== 'en') {
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+
+        function translateContent(lang) {
+            const translation = translations[lang];
+            
+            // Translate all elements with data-key attributes
+            document.querySelectorAll('[data-key]').forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (translation[key]) {
+                    if (element.hasAttribute('data-placeholder')) {
+                        element.placeholder = translation[key];
+                    } else {
+                        element.innerHTML = translation[key];
+                    }
+                }
+            });
+            
+            // Update input placeholder
+            const inputField = document.querySelector('.input-field');
+            if (translation.inputPlaceholder) {
+                inputField.placeholder = translation.inputPlaceholder;
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('languageDropdown');
+            const button = document.querySelector('.language-btn');
+            
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // Initialize with English
+        translateContent('en');
+    </script>
+</body>
+</html>
