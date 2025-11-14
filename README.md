@@ -1,4 +1,4 @@
-#EduMitra: AI-Powered Multilingual Smart Assistant for Students
+EduMitra: AI-Powered Multilingual Smart Assistant for Students
 
 Problem Statement ID: SIH25104
 Theme: Smart Education
